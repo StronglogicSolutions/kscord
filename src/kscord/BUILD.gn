@@ -1,0 +1,91 @@
+config("kjson") {
+  include_dirs = [
+    "//third_party/kjson",
+    "//third_party/json/include",
+  ]
+}
+
+config("cpr") {
+  include_dirs = [
+    "//third_party/cpr/include"
+  ]
+}
+
+
+config("inih") {
+  include_dirs = [
+    "//third_party/inih/cpp"
+  ]
+}
+
+source_set("ini_reader") {
+  sources = [
+    "//third_party/inih/ini.c",
+    "//third_party/inih/cpp/INIReader.cpp"
+  ]
+}
+
+source_set("kscord_sources") {
+  deps = [
+    ":ini_reader",
+  ]
+
+  public_configs = [
+    ":inih",
+    ":cpr",
+    ":kjson",
+  ]
+
+  include_dirs = [
+    "//src",
+  ]
+
+  libs = [
+    "crypto",
+    "cpr",
+    "curl",
+  ]
+
+  sources = [
+    "//src/kscord/client/client.cpp",
+    "//src/kscord/common/util.cpp"
+  ]
+}
+
+executable("kscord") {
+  deps = [
+    ":kscord_sources"
+  ]
+
+  include_dirs = [
+    "//src",
+  ]
+
+  libs = [
+    "pthread",
+    "crypto",
+    "cpr",
+    "curl"
+  ]
+
+  sources = [
+    "//src/kscord/main.cpp"
+  ]
+}
+
+shared_library("kstodon_lib") {
+  deps = [
+    ":kscord_sources"
+  ]
+
+  include_dirs = [
+    "//src",
+  ]
+
+  libs = [
+    "pthread",
+    "crypto",
+    "cpr",
+    "curl"
+  ]
+}
