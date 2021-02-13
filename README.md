@@ -1,3 +1,3 @@
-# KSTODON
-Mastodon client
+# KSCORD
+Discord client
 
