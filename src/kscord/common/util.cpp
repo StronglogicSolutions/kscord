@@ -12,8 +12,7 @@ void SaveToFile(std::string data, std::string path) {
 /**
  * SaveToFile
  */
-template <typename T>
-void SaveToFile(T data, std::string path) {
+void SaveToFile(nlohmann::json data, std::string path) {
   std::ofstream o{path};
   o << data;
 }
@@ -42,7 +41,7 @@ std::vector<uint8_t> ReadBytesFromFile(std::string path) {
 
 nlohmann::json LoadJSONFile(std::string path) {
 
-  return nlohmann::json::parse(ReadFromFile(path), nullptr, constants::JSON_PARSE_NO_THROW);
+  return nlohmann::json::parse(ReadFromFile(path), nullptr, kjson::constants::JSON_PARSE_NO_THROW);
 }
 
 /**

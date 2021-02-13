@@ -86,41 +86,115 @@
 //   return result;
 // }
 
-// inline Account ParseAccountFromJSON(nlohmann::json data) {
-//   Account account{};
-//   std::string s = data.dump();
-//   if (!data.is_null()) {
-//     account.id              = GetJSONStringValue(data, "id");
-//     account.username        = GetJSONStringValue(data, "username");
-//     account.acct            = GetJSONStringValue(data, "acct");
-//     account.display_name    = GetJSONStringValue(data, "display_name");
-//     account.locked          = GetJSONBoolValue  (data, "locked");
-//     account.bot             = GetJSONBoolValue  (data, "bot");
-//     account.discoverable    = GetJSONBoolValue  (data, "discoverable");
-//     account.group           = GetJSONBoolValue  (data, "group");
-//     account.created_at      = GetJSONStringValue(data, "created_at");
-//     account.note            = GetJSONStringValue(data, "note");
-//     account.url             = GetJSONStringValue(data, "url");
-//     account.avatar          = GetJSONStringValue(data, "avatar");
-//     account.header          = GetJSONStringValue(data, "header");
-//     account.locked          = GetJSONBoolValue  (data, "locked");
-//     account.last_status_at  = GetJSONStringValue(data, "last_status_at");
-//     account.followers_count = GetJSONValue<uint32_t>(data, "followers_count");
-//     account.following_count = GetJSONValue<uint32_t>(data, "following_count");
-//     account.statuses_count  = GetJSONValue<uint32_t>(data, "statuses_count");
+inline kscord::User ParseUserFromJSON(nlohmann::json data) {
+  using namespace kjson;
+  kscord::User user{};
 
-//     nlohmann::json fields = data["source"]["fields"];
+  if (!data.is_null()) {
+    user.id = GetJSONStringValue(data, "id");
+    user.username = GetJSONStringValue(data, "username");
+    user.discriminator = GetJSONStringValue(data, "discriminator");
+    user.avatar = GetJSONStringValue(data, "avatar");
+    user.bot = GetJSONStringValue(data, "bot");
+    user.system = GetJSONStringValue(data, "system");
+    user.mfa_enabled = GetJSONBoolValue(data, "mfa_enabled");
+    user.locale = GetJSONStringValue(data, "locale");
+    user.verified = GetJSONBoolValue(data, "verified");
+    user.email = GetJSONStringValue(data, "email");
+    user.flags = GetJSONValue<uint32_t>(data, "flags");
+    user.premium_type = GetJSONValue<uint32_t>(data, "premium_type");
+    user.public_flags = GetJSONValue<uint32_t>(data, "public_flags");
+  }
+  return user;
+}
 
-//     for (const auto& field : fields) {
-//       account.fields.emplace_back(AccountField{
-//         .name  = GetJSONStringValue(field, "name"),
-//         .value = GetJSONStringValue(field, "value")
-//       });
-//     }
-//   }
+inline std::vector<kscord::User> ParseUsersFromJSON(const nlohmann::json& data)
+{
+  std::vector<kscord::User> users{};
+  for (const auto& item : data)
+    users.emplace_back(ParseUserFromJSON(data));
+  return users;
+}
+inline kscord::Guild ParseGuildFromJSON(const nlohmann::json& data) {
+  using namespace kjson;
 
-//   return account;
-// }
+  kscord::Guild guild{};
+
+  kscord::log(data.dump());
+
+  if (!data.is_null()) {
+    guild.id = GetJSONStringValue(data, "id");
+    guild.name = GetJSONStringValue(data, "name");
+    guild.icon = GetJSONStringValue(data, "icon");
+    guild.icon_hash = GetJSONStringValue(data, "icon_hash");
+    guild.splash = GetJSONStringValue(data, "splash");
+    guild.discovery_splash = GetJSONStringValue(data, "discovery_splash");
+    guild.owner = GetJSONBoolValue(data, "owner");
+    guild.owner_id = GetJSONStringValue(data, "owner_id");
+    guild.permissions = GetJSONValue<uint32_t>(data, "permissions");
+    guild.region = GetJSONStringValue(data, "region");
+    guild.afk_channel_id = GetJSONStringValue(data, "afk_channel_id");
+    guild.afk_timeout = GetJSONValue<uint32_t>(data, "afk_timeout");
+    guild.widget_enabled = GetJSONBoolValue(data, "widget_enabled");
+    guild.widget_channel_id = GetJSONStringValue(data, "widget_channel_id");
+    guild.verification_level = GetJSONValue<uint32_t>(data, "verification_level");
+    guild.default_message_notifications = GetJSONValue<uint32_t>(data, "default_message_notifications");
+    guild.explicit_content_filter = GetJSONValue<uint32_t>(data, "explicit_content_filter");
+  }
+
+  return guild;
+}
+
+inline std::vector<kscord::Guild> ParseGuildsFromJSON(const nlohmann::json& data) {
+  std::vector<kscord::Guild> guilds{};
+
+  if (data.is_array())
+    for (const auto& item : data)
+      guilds.emplace_back(ParseGuildFromJSON(item));
+
+  return guilds;
+}
+
+
+inline kscord::Channel ParseChannelFromJSON(const nlohmann::json& data) {
+  using namespace kjson;
+
+  kscord::Channel channel{};
+
+  if (!data.is_null()) {
+    channel.id = GetJSONStringValue(data, "id");
+    channel.type = GetJSONValue<uint32_t>(data, "type");
+    channel.guild_id = GetJSONStringValue(data, "guild_id");
+    channel.position = GetJSONValue<uint32_t>(data, "position");
+    // channel.permission_overwrites = GetJSONValue<permission_overwrites(data, "]");
+    channel.name = GetJSONStringValue(data, "name");
+    channel.topic = GetJSONStringValue(data, "topic");
+    channel.nsfw = GetJSONBoolValue(data, "nsfw");
+    channel.last_message_id = GetJSONStringValue(data, "last_message_id");
+    channel.bitrate = GetJSONValue<uint32_t>(data, "bitrate");
+    channel.user_limit = GetJSONValue<uint32_t>(data, "user_limit");
+    channel.rate_limit_per_user = GetJSONValue<uint32_t>(data, "rate_limit_per_user");
+    channel.recipients = ParseUsersFromJSON(data["recipients"]);
+    channel.icon = GetJSONStringValue(data, "icon");
+    channel.owner_id = GetJSONStringValue(data, "owner_id");
+    channel.application_id = GetJSONStringValue(data, "application_id");
+    channel.parent_id = GetJSONStringValue(data, "parent_id");
+    channel.last_pin_timestamp = GetJSONStringValue(data, "last_pin_timestamp");
+  }
+
+  return channel;
+}
+
+inline std::vector<kscord::Channel> ParseChannelsFromJSON(const nlohmann::json& data)
+{
+  std::vector<kscord::Channel> channels{};
+
+  if (!data.is_null())
+    for (const auto& item : data)
+      channels.emplace_back(ParseChannelFromJSON(item));
+
+  return channels;
+}
 
 // inline std::vector<Tag> ParseTagsFromJSON(nlohmann::json data) {
 //   std::vector<Tag> tags_v{};
@@ -207,18 +281,18 @@
 //   return media_v;
 // }
 
-// inline std::vector<Account> ParseAccountsFromJSON(nlohmann::json data) {
-//   std::vector<Account> accounts{};
+// inline std::vector<User> ParseUsersFromJSON(nlohmann::json data) {
+//   std::vector<User> users{};
 //   std::string s = data.dump();
 
 //   if (!data.is_null() && data.is_array()) {
 //     for (const auto& item : data) {
 //       if (!item.is_null() && item.is_object()) {
-//         accounts.emplace_back(ParseAccountFromJSON(item));
+//         users.emplace_back(ParseUserFromJSON(item));
 //       }
 //     }
 //   }
-//   return accounts;
+//   return users;
 // }
 
 // /**

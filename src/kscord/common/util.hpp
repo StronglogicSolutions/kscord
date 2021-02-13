@@ -20,8 +20,7 @@ void SaveToFile(std::string data, std::string path);
 /**
  * SaveToFile
  */
-template <typename T>
-void SaveToFile(T data, std::string path);
+void SaveToFile(nlohmann::json data, std::string path);
 
 /**
  * ReadFromFile

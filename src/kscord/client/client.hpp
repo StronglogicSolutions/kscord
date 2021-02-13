@@ -21,9 +21,17 @@ virtual ~Client() override {}
 virtual bool                HasAuth() override;
 
 
+// TODO: declare interface for the following
+User                FetchUser();
+std::vector<Guild>  FetchGuilds();
+Guild               FetchGuild(const std::string& id);
+Channel             FetchChannel(const std::string& id);
+std::vector<Channel>FetchGuildChannels(const std::string& id);
+
 private:
 using json = nlohmann::json;
-Authenticator m_authenticator;
+Authenticator      m_authenticator;
+std::vector<Guild> m_guilds;
 };
 
-} // namespace kstodon
+} // namespace kscord

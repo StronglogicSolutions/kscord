@@ -69,7 +69,7 @@ RequestResponse(cpr::Response r)
 {}
 
 nlohmann::json json() const {
-  return nlohmann::json::parse(response.text, nullptr, constants::JSON_PARSE_NO_THROW);
+  return nlohmann::json::parse(response.text, nullptr, kjson::constants::JSON_PARSE_NO_THROW);
 }
 
 std::string text() const {

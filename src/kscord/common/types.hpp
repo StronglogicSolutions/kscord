@@ -9,6 +9,7 @@
 
 #include "util.hpp"
 
+namespace kscord {
 /**
   ┌───────────────────────────────────────────────────────────┐
   │░░░░░░░░░░░░░░░░░░░░░░░░░ CONSTANTS ░░░░░░░░░░░░░░░░░░░░░░│
@@ -25,58 +26,117 @@ namespace constants {
   └───────────────────────────────────────────────────────────┘
 */
 
-struct AccountField {
-std::string name;
-std::string value;
-};
 
-struct Account {
-std::string               id;
-std::string               username;
-std::string               acct;
-std::string               display_name;
-bool                      locked;
-bool                      bot;
-bool                      discoverable;
-std::string               group;
-std::string               created_at;
-std::string               note;
-std::string               url;
-std::string               avatar;
-std::string               header;
-std::string               header_static;
-uint32_t                  followers_count;
-uint32_t                  following_count;
-uint32_t                  statuses_count;
-std::string               last_status_at;
-std::vector<AccountField> fields;
+struct User {
+std::string id;
+std::string username;
+std::string discriminator;
+std::string avatar;
+std::string bot;
+std::string system;
+std::string mfa_enabled;
+std::string locale;
+std::string verified;
+std::string email;
+std::string flags;
+std::string premium_type;
+std::string public_flags;
 
-friend std::ostream &operator<<(std::ostream& o, const Account& a) {
-  std::string fields{};
-  for (const auto& field : a.fields) fields += "\nName: " + field.name + "\nValue: " + field.value;
+bool is_valid()
+{
+  return (
+    !id.empty()       &&
+    !username.empty()
+  );
+}
 
-  o << "ID:           " << a.id              << "\n" <<
-       "Username:     " << a.username        << "\n" <<
-       "Account:      " << a.acct            << "\n" <<
-       "Display Name: " << a.display_name    << "\n" <<
-       "Locked:       " << a.locked          << "\n" <<
-       "Bot:          " << a.bot             << "\n" <<
-       "Discoverable: " << a.discoverable    << "\n" <<
-       "Group:        " << a.group           << "\n" <<
-       "Created:      " << a.created_at      << "\n" <<
-       "Note:         " << a.note            << "\n" <<
-       "URL:          " << a.url             << "\n" <<
-       "Avatar:       " << a.avatar          << "\n" <<
-       "Header:       " << a.header          << "\n" <<
-       "Followers:    " << a.followers_count << "\n" <<
-       "Following:    " << a.following_count << "\n" <<
-       "Statuses:     " << a.statuses_count  << "\n" <<
-       "Last Status:  " << a.last_status_at  << "\n" <<
-
-       "FIELDS\n"       << fields;
-
+friend std::ostream &operator<<(std::ostream& o, const User& u) {
+  o << "ID: " + u.id + '\n' +
+       "Username: " + u.username +'\n' +
+       "Discriminator: " + u.discriminator +'\n' +
+       "Avatar: " + u.avatar +'\n' +
+       "Bot: " + u.bot +'\n' +
+       "System: " + u.system +'\n' +
+       "MFA_enabled: " + u.mfa_enabled +'\n' +
+       "Locale: " + u.locale +'\n' +
+       "Verified: " + u.verified +'\n' +
+       "Email: " + u.email +'\n' +
+       "Flags: " + u.flags +'\n' +
+       "Premium_type: " + u.premium_type +'\n' +
+       "Public_flags: " + u.public_flags;
   return o;
 }
+};
+
+struct Channel {
+std::string       id;
+uint32_t          type;
+std::string       guild_id;
+uint32_t          position;
+//                permission_overwrites TODO: [ Overwrite objects            ];
+std::string       name;
+std::string       topic;
+bool              nsfw;
+std::string       last_message_id;
+uint32_t          bitrate;
+uint32_t          user_limit;
+uint32_t          rate_limit_per_user;
+std::vector<User> recipients;
+std::string       icon;
+std::string       owner_id;
+std::string       application_id;
+std::string       parent_id;
+std::string       last_pin_timestamp;
+};
+
+struct Guild {
+std::string              id;
+std::string              name;
+std::string              icon;
+std::string              icon_hash;
+std::string              splash;
+std::string              discovery_splash;
+bool                     owner;
+std::string              owner_id;
+uint32_t                 permissions;
+std::string              region;
+std::string              afk_channel_id;
+uint32_t                 afk_timeout;
+bool                     widget_enabled;
+std::string              widget_channel_id;
+uint32_t                 verification_level;
+uint32_t                 default_message_notifications;
+uint32_t                 explicit_content_filter;
+// roles
+// emojis
+std::vector<std::string> features;
+std::string              permissions_new;
+// mfa_level
+// application_id
+// system_channel_id
+// system_channel_flags
+// rules_channel_id
+// joined_at
+// large
+// unavailable
+// member_count
+// voice_states
+// members
+std::vector<Channel> channels;
+// presences
+// max_presences
+// max_members
+// vanity_url_code
+// description
+// banner
+// premium_tier
+// premium_subscription_count
+// preferred_locale
+// public_updates_channel_id
+// max_video_channel_users
+// approximate_member_count
+// approximate_presence_count
+// welcome_screen
 };
 
 struct Mention {
@@ -113,16 +173,17 @@ bool is_valid() {
 
 struct Auth {
 std::string access_token;
+std::string refresh_token;
 std::string token_type;
 std::string scope;
-std::string created_at;
+std::string expires_in;
 
 bool is_valid() {
   return (
     !access_token.empty() &&
     !token_type.empty()   &&
     !scope.empty()        &&
-    !created_at.empty()
+    !expires_in.empty()
   );
 }
 };
@@ -137,3 +198,5 @@ friend std::ostream &operator<<(std::ostream& o, const Application& a) {
   return o;
 }
 };
+
+} // namespace kscord

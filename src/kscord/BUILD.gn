@@ -73,7 +73,7 @@ executable("kscord") {
   ]
 }
 
-shared_library("kstodon_lib") {
+shared_library("kscord_lib") {
   deps = [
     ":kscord_sources"
   ]
