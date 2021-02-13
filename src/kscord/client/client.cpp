@@ -113,6 +113,81 @@ std::vector<Guild> Client::FetchGuilds() {
   return ParseGuildsFromJSON(response.json());
 }
 
+bool Client::PostMessage(const std::string& content)
+{
+  using namespace constants;
+
+  nlohmann::json payload{};
+  payload["content"] = content;
+  RequestResponse response{
+    cpr::Post(
+      cpr::Url{m_authenticator.GetPostURL()},
+      cpr::Header{
+        {"Content-Type", "application/json"},
+        // {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+      },
+      cpr::Body{
+        payload.dump()
+      }
+    )
+  };
+
+  if (response.error)
+  {
+    log(response.GetError());
+    return false;
+  }
+
+  log(response.text());
+
+  return true;
+
+}
+
+std::string Client::FetchGateway()
+{
+  using namespace constants;
+
+  const std::string URL = BASE_URL + URLS.at(GATEWAY_BOT_INDEX);
+
+  RequestResponse response{
+    cpr::Get(
+      cpr::Url(URL),
+      cpr::Header{
+        {"Content-Type", "application/json"},
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
+      }
+    )
+  };
+
+  if (response.error)
+  {
+    log(response.GetError());
+    return "";
+  }
+
+  /*
+  {"url":
+    "wss://gateway.discord.gg", "shards": 1, "session_start_limit": {
+      "total": 1000, "remaining": 1000, "reset_after": 0, "max_concurrency": 1
+    }
+  }
+  */
+
+  return response.text();
+}
 
 
-} // namespace kstodon
+bool Client::CreateGatewaySocket(const std::string& url)
+{
+  zmq::context_t context{1};
+  zmq::socket_t  socket{context, ZMQ_PULL};
+
+  socket.connect(url);
+  // socket.
+
+  return false;
+}
+
+
+} // namespace kscord

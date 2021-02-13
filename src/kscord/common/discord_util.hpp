@@ -3,88 +3,40 @@
 #include "types.hpp"
 #include "util.hpp"
 
+namespace kscord {
 /**
   ┌───────────────────────────────────────────────────────────┐
   │░░░░░░░░░░░░░░░░░░░░░░░░░ HelperFns ░░░░░░░░░░░░░░░░░░░░░░░│
   └───────────────────────────────────────────────────────────┘
 */
 
-// inline std::string GetConfigPath() {
-//   return get_executable_cwd() + "../" + constants::DEFAULT_CONFIG_PATH;
-// }
+inline const std::string get_executable_cwd() {
+  char* path = realpath("/proc/self/exe", NULL);
+  char* name = basename(path);
+  std::string executable_cwd{path, path + strlen(path) - strlen(name)};
 
-// inline INIReader GetConfigReader() {
-//   return INIReader{GetConfigPath()};
-// }
+  return executable_cwd;
+}
 
-// inline bool SaveStatusID(uint64_t status_id, std::string username) {
-//   using namespace nlohmann;
-//   json database_json;
-//   json loaded_json = LoadJSONFile(get_executable_cwd() + "../" + constants::DB_JSON_PATH);
+inline const std::string GetConfigPath() {
+  return get_executable_cwd() + "../" + constants::DEFAULT_CONFIG_PATH;
+}
 
-//   if (loaded_json.is_discarded() || loaded_json.is_null())
-//   {
-//     database_json["status"] = json::object();
-//     database_json["status"][username] = {status_id};
-//   }
-//   else
-//   {
-//     database_json = loaded_json;
-//     json user_status_array_json = database_json["status"][username];
+inline const std::string GetCredsJSONPath() {
+  return get_executable_cwd() + "../" + constants::CREDS_JSON_PATH;
+}
 
-//     if (!user_status_array_json.empty()) {
-//       for (const auto& id : user_status_array_json.get<const std::vector<uint64_t>>())
-//         if (id == status_id) return false; // Already exists
-//     }
+inline const std::string GetCredsJSON() {
+  return LoadJSONFile(GetCredsJSONPath());
+}
 
-//     database_json["status"][username].emplace_back(status_id);
-//   }
+inline const std::string GetTokenJSON() {
+  return LoadJSONFile(get_executable_cwd() + "../" + constants::TOKEN_JSON_PATH);
+}
 
-//   SaveToFile(database_json, constants::DB_JSON_PATH);
-
-//   return true;
-// }
-
-// inline std::vector<uint64_t> GetSavedStatusIDs(std::string username) {
-//   using json = nlohmann::json;
-
-//   json db_json = LoadJSONFile(get_executable_cwd() + "../" + constants::DB_JSON_PATH);
-
-//   if (!db_json.is_null()                   &&
-//       db_json.contains("status")           &&
-//       db_json["status"].contains(username) &&
-//       !db_json["status"][username].is_null()) {
-//     return db_json["status"][username].get<std::vector<uint64_t>>();
-//   }
-
-//   return std::vector<uint64_t>{};
-// }
-
-// inline bool RemoveStatusID(std::string username, uint64_t id) {
-//   using json = nlohmann::json;
-//   bool result{false};
-//   json db_json = LoadJSONFile(get_executable_cwd() + "../" + constants::DB_JSON_PATH);
-
-//   if (!db_json.is_null()                 &&
-//     db_json.contains("status")           &&
-//     db_json["status"].contains(username) &&
-//     !db_json["status"][username].is_null()) {
-
-//     for (int i = 0; i < db_json["status"][username].size(); i++) {
-//       if (db_json["status"][username][i].get<uint64_t>() == id) {
-//         db_json["status"][username].erase(i);
-//         result = true;
-//         break;
-//       }
-//     }
-//   }
-
-//   if (result) {
-//     SaveToFile(db_json, constants::DB_JSON_PATH);
-//   }
-
-//   return result;
-// }
+inline INIReader GetConfigReader() {
+  return INIReader{GetConfigPath()};
+}
 
 inline kscord::User ParseUserFromJSON(nlohmann::json data) {
   using namespace kjson;
@@ -447,3 +399,5 @@ inline std::vector<kscord::Channel> ParseChannelsFromJSON(const nlohmann::json& 
 //   }
 //   return "";
 // }
+
+} // namespace kscord

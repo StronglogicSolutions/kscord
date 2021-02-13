@@ -2,6 +2,7 @@
 
 #include "kscord/common/auth/auth.hpp"
 #include "kscord/common/interface.hpp"
+#include <zmq.hpp>
 
 namespace kscord {
 /**
@@ -27,6 +28,9 @@ std::vector<Guild>  FetchGuilds();
 Guild               FetchGuild(const std::string& id);
 Channel             FetchChannel(const std::string& id);
 std::vector<Channel>FetchGuildChannels(const std::string& id);
+std::string         FetchGateway();
+bool                CreateGatewaySocket(const std::string& url);
+bool                PostMessage(const std::string& content);
 
 private:
 using json = nlohmann::json;

@@ -5,12 +5,6 @@
 #include "kscord/common/discord_util.hpp"
 
 namespace kscord {
-inline const std::string get_dir() {
-  char* path = realpath("/proc/self/exe", NULL);
-  char* name = basename(path);
-  return std::string {path, path + strlen(path) - strlen(name)};
-}
-
 inline bool ValidateCredentialsJSON(nlohmann::json json_file) {
   return(
     !json_file.is_null()                &&
@@ -113,16 +107,16 @@ Authenticator(std::string username = "")
 {
   using namespace kscord;
 
-  if (m_username.empty()) {
-    INIReader reader{std::string{get_dir() + "../" + constants::DEFAULT_CONFIG_PATH}};
+  auto config = GetConfigReader();
 
-    if (reader.ParseError() < 0) {
+  if (m_username.empty()) {
+
+    if (config.ParseError() < 0) {
       kscord::log("Error loading config");
       throw std::invalid_argument{"No configuration path"};
     }
 
-
-    auto name = reader.GetString(constants::KSCORD_SECTION, constants::USER_CONFIG_KEY, "");
+    auto name = config.GetString(constants::KSCORD_SECTION, constants::USER_CONFIG_KEY, "");
 
     if (name.empty()) {
       throw std::invalid_argument{"No username in config. Please provide a username"};
@@ -130,30 +124,39 @@ Authenticator(std::string username = "")
 
     m_username = name;
   }
-  std::string config_path = get_dir() + "../" + constants::CONFIG_JSON_PATH;
+
+  std::string config_path = get_executable_cwd() + "../" + constants::CREDS_JSON_PATH;
   m_credentials_json = LoadJSONFile(config_path);
   auto credentials   = ParseCredentialsFromJSON(m_credentials_json, m_username);
 
-  if (!credentials.is_valid()) {
-    throw std::invalid_argument{"Credentials not found"};
-  }
-
   m_credentials = credentials;
+  config_path  = get_executable_cwd() + "../" + constants::TOKEN_JSON_PATH;
+  m_token_json =  LoadJSONFile(config_path);
 
-  m_token_json = LoadJSONFile(get_dir() + "../" + constants::TOKEN_JSON_PATH);
 
-  auto s = m_token_json.dump();
-  if (
-    m_token_json.contains(m_username) &&
-    !m_token_json[m_username].is_null()) {
-
+  if (m_token_json.contains(m_username) && !m_token_json[m_username].is_null()) {
     auto auth = ParseAuthFromJSON(m_token_json[m_username]);
 
     if (auth.is_valid()) {
-      m_auth = auth;
+      m_auth          = auth;
       m_authenticated = true;
     }
   }
+
+  auto botname = config.GetString(constants::KSCORD_SECTION, constants::BOT_CONFIG_KEY, "");
+
+  if (botname.empty())
+    log("No bot name provided");
+  else
+  {
+    m_botname = botname;
+    auto post_endpoint = config.GetString(botname, constants::POST_ENDPOINT_CONFIG_KEY, "");
+    if (post_endpoint.empty())
+      log("No post endpoint");
+    else
+      m_post_endpoint = post_endpoint;
+  }
+
 }
 
 /**
@@ -266,21 +269,26 @@ void ClearToken() {
   m_auth = Auth{};
 }
 
-std::string GetBearerAuth() {
+const std::string GetBearerAuth() {
   if (m_auth.access_token.empty())
     return "";
   return std::string{"Bearer " + m_auth.access_token};
 }
 
-std::string GetBotAuth(const std::string& name = "") {
+const std::string GetBotAuth() const {
   std::string token{};
 
   if (!m_auth.bots.empty())
-    if (name.empty())
+    if (m_botname.empty())
       token = m_auth.bots.front().token;
     else
     {
-      auto it = std::find_if(m_auth.bots.cbegin(), m_auth.bots.cend(), [&name](const BotInfo& bot) { return bot.name == name;});
+      auto it = std::find_if(m_auth.bots.cbegin(), m_auth.bots.cend(),
+        [this](const BotInfo& bot)
+        {
+          return bot.name == m_botname;
+        }
+      );
 
       if (it != m_auth.bots.cend())
         token = it->token;
@@ -292,12 +300,18 @@ std::string GetBotAuth(const std::string& name = "") {
   return "Bot " + token;
 }
 
-Credentials get_credentials() {
+const Credentials get_credentials() const {
   return m_credentials;
 }
 
-std::string GetUsername() {
+const std::string GetUsername() const {
   return m_username;
+}
+
+const std::string GetPostURL() const {
+  if (m_post_endpoint.empty())
+    throw std::runtime_error{"No post endpoint has been set"};
+  return constants::BASE_URL + m_post_endpoint;
 }
 
 private:
@@ -307,9 +321,11 @@ Credentials  m_credentials;
 Auth         m_auth;
 User         m_user;
 std::string  m_username;
+std::string  m_botname;
 bool         m_authenticated;
 json         m_token_json;
 json         m_credentials_json;
+std::string  m_post_endpoint;
 
 };
 

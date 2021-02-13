@@ -7,9 +7,12 @@ namespace kscord {
 namespace constants {
 const std::string DEFAULT_CONFIG_PATH{"config/config.ini"};
 const std::string CONFIG_JSON_PATH   {"config/credentials.json"};
+const std::string CREDS_JSON_PATH    {"config/credentials.json"};
 const std::string TOKEN_JSON_PATH    {"config/tokens.json"};
-const std::string KSCORD_SECTION{"kscord"};
+const std::string KSCORD_SECTION {"kscord"};
 const std::string USER_CONFIG_KEY{"user"};
+const std::string BOT_CONFIG_KEY {"bot"};
+const std::string POST_ENDPOINT_CONFIG_KEY{"post_endpoint"};
 
 const uint8_t  HEADER_AUTH_INDEX   = 0x00;
 const std::vector<std::string> HEADER_NAMES{
@@ -24,6 +27,8 @@ const uint8_t SELF_INDEX       {0x02};
 const uint8_t SELF_GUILDS_INDEX{0x03};
 const uint8_t CHANNELS_INDEX{0x04};
 const uint8_t GUILDS_INDEX{0x05};
+const uint8_t GATEWAY_INDEX{0x06};
+const uint8_t GATEWAY_BOT_INDEX{0x07};
 
 const std::vector<std::string> URLS{
   "/api/oauth2/authorize",
@@ -31,7 +36,9 @@ const std::vector<std::string> URLS{
   "/api/users/@me",
   "/api/users/@me/guilds",
   "/api/channels/",
-  "/api/guilds/"
+  "/api/guilds/",
+  "/api/gateway",
+  "/api/gateway/bot"
 };
 
 
