@@ -14,8 +14,10 @@ namespace kscord {
  *
  * @param username
  */
-Client::Client(const std::string& username)
+Client::Client(bool fetch_new_token, const std::string& username)
 : m_authenticator(Authenticator{username}) {
+  if (fetch_new_token)
+    m_authenticator.FetchToken();
   if (!m_authenticator.IsAuthenticated() && m_authenticator.RefreshToken())
     throw std::invalid_argument{"Client was unable to authenticate."};
 }
@@ -48,7 +50,7 @@ std::vector<Channel> Client::FetchGuildChannels(const std::string& id)
       cpr::Url(URL),
       cpr::Header{
         {"Content-Type", "application/json"},
-        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
      }
     )
   };
@@ -73,7 +75,7 @@ Guild Client::FetchGuild(const std::string& id) {
       cpr::Url(URL),
       cpr::Header{
         {"Content-Type", "application/json"},
-        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
      }
     )
   };

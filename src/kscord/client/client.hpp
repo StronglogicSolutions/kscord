@@ -14,7 +14,7 @@ namespace kscord {
 class Client : public SecureClient
 {
 public:
-Client(const std::string& username = "");
+Client(bool fetch_new_token = false, const std::string& username = "");
 
 virtual ~Client() override {}
 

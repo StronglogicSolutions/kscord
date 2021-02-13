@@ -115,12 +115,11 @@ inline std::vector<kscord::User> ParseUsersFromJSON(const nlohmann::json& data)
     users.emplace_back(ParseUserFromJSON(data));
   return users;
 }
+
 inline kscord::Guild ParseGuildFromJSON(const nlohmann::json& data) {
   using namespace kjson;
 
   kscord::Guild guild{};
-
-  kscord::log(data.dump());
 
   if (!data.is_null()) {
     guild.id = GetJSONStringValue(data, "id");
@@ -174,7 +173,7 @@ inline kscord::Channel ParseChannelFromJSON(const nlohmann::json& data) {
     channel.bitrate = GetJSONValue<uint32_t>(data, "bitrate");
     channel.user_limit = GetJSONValue<uint32_t>(data, "user_limit");
     channel.rate_limit_per_user = GetJSONValue<uint32_t>(data, "rate_limit_per_user");
-    channel.recipients = ParseUsersFromJSON(data["recipients"]);
+    // channel.recipients = ParseUsersFromJSON(data["recipients"]);
     channel.icon = GetJSONStringValue(data, "icon");
     channel.owner_id = GetJSONStringValue(data, "owner_id");
     channel.application_id = GetJSONStringValue(data, "application_id");

@@ -67,6 +67,22 @@ inline bool ValidateAuthJSON(const nlohmann::json& json_file) {
 //   return auth_json.dump();
 // }
 
+inline std::vector<BotInfo> ParseBotInfoFromJSON(const nlohmann::json& data)
+{
+  using namespace kjson;
+
+  std::vector<BotInfo> info{};
+
+  if (!data.is_null() && data.is_object())
+    for (const auto& item : data.items())
+      info.emplace_back(BotInfo{
+        .name = item.key(),
+        .token = item.value()
+      });
+
+  return info;
+}
+
 inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
   using namespace kjson;
 
@@ -78,6 +94,7 @@ inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
     auth.token_type   =  GetJSONStringValue(json_file, "token_type");
     auth.scope        =  GetJSONStringValue(json_file, "scope");
     auth.expires_in   =  std::to_string(GetJSONValue<uint32_t>(json_file, "expires_in"));
+    auth.bots         =  ParseBotInfoFromJSON(json_file["bots"]);
   }
 
   return auth;
@@ -253,6 +270,26 @@ std::string GetBearerAuth() {
   if (m_auth.access_token.empty())
     return "";
   return std::string{"Bearer " + m_auth.access_token};
+}
+
+std::string GetBotAuth(const std::string& name = "") {
+  std::string token{};
+
+  if (!m_auth.bots.empty())
+    if (name.empty())
+      token = m_auth.bots.front().token;
+    else
+    {
+      auto it = std::find_if(m_auth.bots.cbegin(), m_auth.bots.cend(), [&name](const BotInfo& bot) { return bot.name == name;});
+
+      if (it != m_auth.bots.cend())
+        token = it->token;
+    }
+
+  if (token.empty())
+    throw std::runtime_error{"Bot auth not found"};
+
+  return "Bot " + token;
 }
 
 Credentials get_credentials() {

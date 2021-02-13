@@ -171,12 +171,18 @@ bool is_valid() {
 }
 };
 
+struct BotInfo {
+std::string name;
+std::string token;
+};
+
 struct Auth {
 std::string access_token;
 std::string refresh_token;
 std::string token_type;
 std::string scope;
 std::string expires_in;
+std::vector<BotInfo> bots;
 
 bool is_valid() {
   return (
