@@ -4,6 +4,13 @@
 #include "util.hpp"
 
 namespace kscord {
+namespace kjson {
+namespace constants {
+extern const bool JSON_PARSE_NO_THROW;
+} // namespace constants
+std::string GetJSONStringValue(const nlohmann::json& data, const std::string& key);
+bool        GetJSONBoolValue(const nlohmann::json& data, const std::string& key);
+} // namespace kjson
 /**
   ┌───────────────────────────────────────────────────────────┐
   │░░░░░░░░░░░░░░░░░░░░░░░░░ HelperFns ░░░░░░░░░░░░░░░░░░░░░░░│
