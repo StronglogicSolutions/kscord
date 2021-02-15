@@ -105,8 +105,6 @@ Authenticator(std::string username = "")
 : m_username(username),
   m_authenticated(false)
 {
-  using namespace kscord;
-
   auto config = GetConfigReader();
 
   if (m_username.empty()) {
@@ -130,10 +128,10 @@ Authenticator(std::string username = "")
   if (!creds_path.empty())
     m_credentials = ParseCredentialsFromJSON(LoadJSONFile(creds_path), m_username);
 
-  auto tokens_path = config.GetString(constants::KSCORD_SECTION, constants::TOKENS_PATH_KEY, "");
+  auto m_tokens_path = config.GetString(constants::KSCORD_SECTION, constants::TOKENS_PATH_KEY, "");
 
-  if (!tokens_path.empty())
-    m_token_json = LoadJSONFile(tokens_path);
+  if (!m_tokens_path.empty())
+    m_token_json = LoadJSONFile(m_tokens_path);
 
   if (m_token_json.contains(m_username) && !m_token_json[m_username].is_null()) {
     auto auth = ParseAuthFromJSON(m_token_json[m_username]);
@@ -215,7 +213,7 @@ bool FetchToken(bool refresh = false) {
     m_auth = ParseAuthFromJSON(response_json);
     m_authenticated = true;
     m_token_json[m_username] = response_json;
-    SaveToFile(m_token_json, constants::TOKEN_JSON_PATH);
+    SaveToFile(m_token_json, m_tokens_path);
   }
 
   return true;
@@ -332,6 +330,7 @@ bool         m_authenticated;
 json         m_token_json;
 json         m_credentials_json;
 std::string  m_post_endpoint;
+std::string  m_tokens_path;
 
 };
 

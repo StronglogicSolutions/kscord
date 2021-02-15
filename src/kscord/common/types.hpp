@@ -7,8 +7,6 @@
 #include <cpr/cpr.h>
 #include <kjson.hpp>
 
-#include "util.hpp"
-
 namespace kscord {
 /**
   ┌───────────────────────────────────────────────────────────┐
