@@ -68,6 +68,35 @@ friend std::ostream &operator<<(std::ostream& o, const User& u) {
 }
 };
 
+struct Message {
+std::string id;
+std::string channel_id;
+std::string guild_id;
+User        author;
+// std::string member guild member;
+std::string content;
+std::string timestamp;
+std::string edited_timestamp;
+std::string tts;
+std::string mention_everyone;
+std::vector<User> mentions;
+// std::string mention_roles
+// std::string mention_channels
+// std::string attachments // TODO: important
+// std::string embeds // TODO: also
+// std::string reactions
+// std::string nonce
+// std::string pinned
+// std::string webhook_id
+// std::string type
+// std::string activity
+// std::string application
+// std::string message_reference
+// std::string flags
+// std::string stickers
+// std::string referenced_message
+};
+
 struct Channel {
 std::string       id;
 uint32_t          type;

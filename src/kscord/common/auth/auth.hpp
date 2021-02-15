@@ -125,14 +125,15 @@ Authenticator(std::string username = "")
     m_username = name;
   }
 
-  std::string config_path = get_executable_cwd() + "../" + constants::CREDS_JSON_PATH;
-  m_credentials_json = LoadJSONFile(config_path);
-  auto credentials   = ParseCredentialsFromJSON(m_credentials_json, m_username);
+  auto creds_path = config.GetString(constants::KSCORD_SECTION, constants::CREDS_PATH_KEY, "");
 
-  m_credentials = credentials;
-  config_path  = get_executable_cwd() + "../" + constants::TOKEN_JSON_PATH;
-  m_token_json =  LoadJSONFile(config_path);
+  if (!creds_path.empty())
+    m_credentials = ParseCredentialsFromJSON(LoadJSONFile(creds_path), m_username);
 
+  auto tokens_path = config.GetString(constants::KSCORD_SECTION, constants::TOKENS_PATH_KEY, "");
+
+  if (!tokens_path.empty())
+    m_token_json = LoadJSONFile(tokens_path);
 
   if (m_token_json.contains(m_username) && !m_token_json[m_username].is_null()) {
     auto auth = ParseAuthFromJSON(m_token_json[m_username]);
@@ -142,6 +143,12 @@ Authenticator(std::string username = "")
       m_authenticated = true;
     }
   }
+
+  if (!m_credentials.is_valid())
+    throw std::invalid_argument{"Credentials not found"};
+
+  if (m_token_json.is_null())
+    throw std::invalid_argument{"Tokens not found"};
 
   auto botname = config.GetString(constants::KSCORD_SECTION, constants::BOT_CONFIG_KEY, "");
 
@@ -156,7 +163,6 @@ Authenticator(std::string username = "")
     else
       m_post_endpoint = post_endpoint;
   }
-
 }
 
 /**

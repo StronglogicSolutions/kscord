@@ -1,3 +1,4 @@
 config
 third_party
 out
+.vscode

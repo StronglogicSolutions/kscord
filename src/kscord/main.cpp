@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 {
   kscord::Client client{};
 
-  client.PostMessage("Whatsup");
+  client.PostMessage("Hi");
 
 
   return 0;

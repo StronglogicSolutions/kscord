@@ -27,6 +27,7 @@ User                FetchUser();
 std::vector<Guild>  FetchGuilds();
 Guild               FetchGuild(const std::string& id);
 Channel             FetchChannel(const std::string& id);
+// Channel             FetchChannelMessages(const std::string& id);
 std::vector<Channel>FetchGuildChannels(const std::string& id);
 std::string         FetchGateway();
 bool                CreateGatewaySocket(const std::string& url);
