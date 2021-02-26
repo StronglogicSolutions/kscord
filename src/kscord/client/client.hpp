@@ -31,7 +31,7 @@ Channel             FetchChannel(const std::string& id);
 std::vector<Channel>FetchGuildChannels(const std::string& id);
 std::string         FetchGateway();
 bool                CreateGatewaySocket(const std::string& url);
-bool                PostMessage(const std::string& content);
+bool                PostMessage(const std::string& content, const std::vector<std::string>& urls = {});
 
 private:
 using json = nlohmann::json;

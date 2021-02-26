@@ -151,12 +151,18 @@ std::vector<Guild> Client::FetchGuilds() {
   return ParseGuildsFromJSON(response.json());
 }
 
-bool Client::PostMessage(const std::string& content)
+bool Client::PostMessage(const std::string& content, const std::vector<std::string>& urls)
 {
   using namespace constants;
 
   nlohmann::json payload{};
   payload["content"] = content;
+  if (!urls.empty())
+  {
+    payload["embeds"] = nlohmann::json::array();
+    for (const auto& url : urls)
+      payload["embeds"].emplace_back(Embed{url}.to_json());
+  }
   RequestResponse response{
     cpr::Post(
       cpr::Url{m_authenticator.GetPostURL()},
