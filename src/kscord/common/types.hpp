@@ -66,6 +66,108 @@ friend std::ostream &operator<<(std::ostream& o, const User& u) {
 }
 };
 
+struct EmbedImage
+{
+std::string url;
+// proxy_url
+uint32_t height;
+uint32_t width;
+
+const nlohmann::json to_json()
+{
+  nlohmann::json json{};
+  json["url"] = url;
+
+  return json;
+}
+};
+
+struct EmbedVideo
+{
+std::string url;
+// proxy_url
+uint32_t height;
+uint32_t width;
+};
+
+struct EmbedThumbnail
+{
+std::string url;
+// proxy_url
+uint32_t height;
+uint32_t width;
+};
+
+struct EmbedFooter
+{
+std::string text;
+std::string icon_url;
+// proxy_icon_url
+};
+
+struct EmbedAuthor{
+std::string name;
+std::string url;
+std::string icon_url;
+// proxy_icon_url
+};
+
+struct EmbedField
+{
+std::string name;
+std::string value;
+bool is_inline;
+};
+
+struct Attachment
+{
+std::string id;
+std::string filename;
+uint32_t size;
+std::string url;
+// proxy_url
+uint32_t height;
+uint32_t width;
+};
+
+struct EmbedProvider
+{
+std::string name;
+std::string url;
+};
+
+struct Embed
+{
+Embed(const std::string& image_url)
+: image{EmbedImage{.url = image_url}},
+  url{image_url} {}
+
+std::string title;
+std::string type;
+std::string description;
+std::string url;
+std::string timestamp;
+uint32_t color;
+EmbedFooter	 footer;
+EmbedImage	 image;
+EmbedThumbnail thumbnail;
+EmbedVideo video;
+EmbedProvider provider;
+EmbedAuthor	author;
+std::vector<EmbedField> fields;
+
+const nlohmann::json to_json()
+{
+  nlohmann::json json{};
+  json["title"] = title;
+  json["description"] = description;
+  json["url"] = url;
+  json["image"] = image.to_json();
+
+  return json;
+}
+};
+
 struct Message {
 std::string id;
 std::string channel_id;
