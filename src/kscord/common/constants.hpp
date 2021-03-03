@@ -11,6 +11,7 @@ const std::string CREDS_JSON_PATH    {"config/credentials.json"};
 const std::string TOKEN_JSON_PATH    {"config/tokens.json"};
 const std::string KSCORD_SECTION {"kscord"};
 const std::string USER_CONFIG_KEY{"user"};
+const std::string VERIFY_SSL_KEY{"verify_ssl"};
 const std::string BOT_CONFIG_KEY {"bot"};
 const std::string CREDS_PATH_KEY     {"credentials_path"};
 const std::string TOKENS_PATH_KEY    {"token_path"};

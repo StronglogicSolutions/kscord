@@ -172,7 +172,8 @@ bool Client::PostMessage(const std::string& content, const std::vector<std::stri
       },
       cpr::Body{
         payload.dump()
-      }
+      },
+      cpr::VerifySsl{m_authenticator.verify_ssl()}
     )
   };
 

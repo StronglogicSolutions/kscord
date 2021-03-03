@@ -103,7 +103,8 @@ public:
 
 Authenticator(std::string username = "")
 : m_username(username),
-  m_authenticated(false)
+  m_authenticated(false),
+  m_verify_ssl(true)
 {
   auto config = GetConfigReader();
 
@@ -114,8 +115,12 @@ Authenticator(std::string username = "")
       throw std::invalid_argument{"No configuration path"};
     }
 
-    auto name = config.GetString(constants::KSCORD_SECTION, constants::USER_CONFIG_KEY, "");
+    auto verify_ssl = config.GetString(constants::KSCORD_SECTION, constants::VERIFY_SSL_KEY, "true");
+    if (!verify_ssl.empty()) {
+      m_verify_ssl = (verify_ssl == "true");
+    }
 
+    auto name = config.GetString(constants::KSCORD_SECTION, constants::USER_CONFIG_KEY, "");
     if (name.empty()) {
       throw std::invalid_argument{"No username in config. Please provide a username"};
     }
@@ -124,7 +129,6 @@ Authenticator(std::string username = "")
   }
 
   auto creds_path = config.GetString(constants::KSCORD_SECTION, constants::CREDS_PATH_KEY, "");
-
   if (!creds_path.empty())
     m_credentials = ParseCredentialsFromJSON(LoadJSONFile(creds_path), m_username);
 
@@ -198,7 +202,8 @@ bool FetchToken(bool refresh = false) {
       cpr::Header{
         {"Content-Type", "application/x-www-form-urlencoded"}
       },
-      body
+      body,
+      cpr::VerifySsl{m_verify_ssl}
     )
   };
 
@@ -318,6 +323,10 @@ const std::string GetPostURL() const {
   return constants::BASE_URL + m_post_endpoint;
 }
 
+bool verify_ssl() {
+  return m_verify_ssl;
+}
+
 private:
 using json = nlohmann::json;
 
@@ -331,6 +340,7 @@ json         m_token_json;
 json         m_credentials_json;
 std::string  m_post_endpoint;
 std::string  m_tokens_path;
+bool         m_verify_ssl;
 
 };
 
