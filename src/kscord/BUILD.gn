@@ -5,12 +5,25 @@ config("kjson") {
   ]
 }
 
-config("cpr") {
-  include_dirs = [
-    "//third_party/cpr/include"
+# config("cpr") {
+#   include_dirs = [
+#     "//third_party/cpr/include"
+#   ]
+# }
+
+config("cpr_library") {
+  include_dirs = ["//third_party/cpr/include"]
+  lib_dirs = [ "//third_party/cpr/build/lib" ]
+  libs = [
+    "//third_party/cpr/build/lib/libcpr.so",
+    # "//third_party/cpr/build/lib/libcurl-d.so"
   ]
+  visibility = [ ":cpr_lib" ]
 }
 
+group("cpr_lib") {
+  public_configs = [":cpr_library"]
+}
 
 config("inih") {
   include_dirs = [
@@ -30,9 +43,13 @@ source_set("kscord_sources") {
     ":ini_reader",
   ]
 
+  public_deps = [
+    ":cpr_lib"
+  ]
+
   public_configs = [
     ":inih",
-    ":cpr",
+    # ":cpr",
     ":kjson",
   ]
 
@@ -66,7 +83,7 @@ executable("kscord") {
   libs = [
     "pthread",
     "crypto",
-    "cpr",
+    # "cpr",
     "curl"
   ]
 

@@ -1,7 +1,7 @@
 executable("ut_kscord") {
 
   public_configs = [
-    "//src/kscord:cpr"
+    # "//src/kscord:cpr"
   ]
 
   public_deps = [
