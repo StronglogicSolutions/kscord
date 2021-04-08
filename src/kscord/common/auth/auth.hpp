@@ -108,46 +108,36 @@ Authenticator(std::string username = "")
 {
   auto config = GetConfigReader();
 
-  if (m_username.empty()) {
+  if (username.empty()) {
 
     if (config.ParseError() < 0) {
       kscord::log("Error loading config");
       throw std::invalid_argument{"No configuration path"};
     }
 
-    auto verify_ssl = config.GetString(constants::KSCORD_SECTION, constants::VERIFY_SSL_KEY, "true");
-    if (!verify_ssl.empty()) {
-      m_verify_ssl = (verify_ssl == "true");
-    }
+    username = config.GetString(constants::KSCORD_SECTION, constants::USER_CONFIG_KEY, "");
 
-    auto name = config.GetString(constants::KSCORD_SECTION, constants::USER_CONFIG_KEY, "");
-    if (name.empty()) {
+    if (username.empty()) {
       throw std::invalid_argument{"No username in config. Please provide a username"};
     }
+  }
 
-    m_username = name;
+  auto verify_ssl = config.GetString(constants::KSCORD_SECTION, constants::VERIFY_SSL_KEY, "true");
+  if (!verify_ssl.empty()) {
+    m_verify_ssl = (verify_ssl == "true");
   }
 
   auto creds_path = config.GetString(constants::KSCORD_SECTION, constants::CREDS_PATH_KEY, "");
   if (!creds_path.empty())
-    m_credentials = ParseCredentialsFromJSON(LoadJSONFile(creds_path), m_username);
+    m_credentials_json = LoadJSONFile(creds_path);
 
-  auto m_tokens_path = config.GetString(constants::KSCORD_SECTION, constants::TOKENS_PATH_KEY, "");
+  auto tokens_path = config.GetString(constants::KSCORD_SECTION, constants::TOKENS_PATH_KEY, "");
 
-  if (!m_tokens_path.empty())
-    m_token_json = LoadJSONFile(m_tokens_path);
-
-  if (m_token_json.contains(m_username) && !m_token_json[m_username].is_null()) {
-    auto auth = ParseAuthFromJSON(m_token_json[m_username]);
-
-    if (auth.is_valid()) {
-      m_auth          = auth;
-      m_authenticated = true;
-    }
+  if (!tokens_path.empty())
+  {
+    m_tokens_path = tokens_path;
+    m_token_json = LoadJSONFile(tokens_path);
   }
-
-  if (!m_credentials.is_valid())
-    throw std::invalid_argument{"Credentials not found"};
 
   if (m_token_json.is_null())
     throw std::invalid_argument{"Tokens not found"};
@@ -165,6 +155,9 @@ Authenticator(std::string username = "")
     else
       m_post_endpoint = post_endpoint;
   }
+
+  if (!SetUser(username))
+    log("Error setting user tokens");
 }
 
 /**
@@ -309,20 +302,73 @@ const std::string GetBotAuth() const {
   return "Bot " + token;
 }
 
+/**
+ * @brief Get the credentials object
+ *
+ * @return const Credentials
+ */
 const Credentials get_credentials() const {
   return m_credentials;
 }
 
+/**
+ * @brief Set the User object
+ *
+ * @param username
+ * @return true
+ * @return false
+ */
+bool SetUser(const std::string& username)
+{
+  Credentials credentials = ParseCredentialsFromJSON(m_credentials_json, username);
+  if (credentials.is_valid())
+  {
+    m_credentials = credentials;
+
+    if (m_token_json.contains("users")    &&
+        !m_token_json["users"].is_null()  &&
+        m_token_json["users"].contains(username) &&
+        !m_token_json["users"][username].is_null())
+    {
+      auto auth = ParseAuthFromJSON(m_token_json["users"][username]);
+
+      if (auth.is_valid()) {
+        m_auth = auth;
+        m_username = username;
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * @brief Get the Username object
+ *
+ * @return const std::string
+ */
 const std::string GetUsername() const {
   return m_username;
 }
 
+/**
+ * @brief Get the Post U R L object
+ *
+ * @return const std::string
+ */
 const std::string GetPostURL() const {
   if (m_post_endpoint.empty())
     throw std::runtime_error{"No post endpoint has been set"};
   return constants::BASE_URL + m_post_endpoint;
 }
 
+/**
+ * @brief
+ *
+ * @return true
+ * @return false
+ */
 bool verify_ssl() {
   return m_verify_ssl;
 }
