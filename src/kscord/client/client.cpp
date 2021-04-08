@@ -224,7 +224,10 @@ std::string Client::FetchGateway()
 
 bool Client::SetUser(const std::string& username)
 {
-  return m_authenticator.SetUser(username);
+  bool result = m_authenticator.SetUser(username);
+  if (!result)
+    m_last_error = "Failed to set user " + username;
+  return result;
 }
 
 bool Client::CreateGatewaySocket(const std::string& url)
@@ -234,8 +237,27 @@ bool Client::CreateGatewaySocket(const std::string& url)
 
   socket.connect(url);
   // socket.
-
   return false;
+}
+
+/**
+ * @brief
+ *
+ * @return const std::string
+ */
+const std::string Client::GetUsername() const
+{
+  return m_authenticator.GetUsername();
+}
+
+/**
+ * @brief
+ *
+ * @return const std::string
+ */
+const std::string Client::GetLastError() const
+{
+  return m_last_error;
 }
 
 } // namespace kscord
