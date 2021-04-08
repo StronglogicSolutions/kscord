@@ -155,6 +155,9 @@ Authenticator(std::string username = "")
     else
       m_post_endpoint = post_endpoint;
   }
+
+  if (!SetUser(username))
+    log("Error setting user tokens");
 }
 
 /**
