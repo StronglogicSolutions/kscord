@@ -222,6 +222,10 @@ std::string Client::FetchGateway()
   return response.text();
 }
 
+bool Client::SetUser(const std::string& username)
+{
+  return m_authenticator.SetUser(username);
+}
 
 bool Client::CreateGatewaySocket(const std::string& url)
 {
@@ -233,6 +237,5 @@ bool Client::CreateGatewaySocket(const std::string& url)
 
   return false;
 }
-
 
 } // namespace kscord
