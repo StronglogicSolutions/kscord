@@ -5,6 +5,7 @@
 
 namespace kscord {
 namespace constants {
+const uint32_t    DISCORD_CHAR_LIMIT {0x7D0};
 const std::string DEFAULT_CONFIG_PATH{"config/config.ini"};
 const std::string CONFIG_JSON_PATH   {"config/credentials.json"};
 const std::string CREDS_JSON_PATH    {"config/credentials.json"};
