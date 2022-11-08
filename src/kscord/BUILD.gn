@@ -58,9 +58,9 @@ source_set("kscord_sources") {
   ]
 
   libs = [
-    "crypto",
+    # "crypto",
     "cpr",
-    "curl",
+    # "curl",
     "zmq"
   ]
 
@@ -81,10 +81,10 @@ executable("kscord") {
   ]
 
   libs = [
-    "pthread",
+    # "pthread",
     "crypto",
     # "cpr",
-    "curl"
+    # "curl"
   ]
 
   sources = [
@@ -102,9 +102,9 @@ shared_library("kscord_lib") {
   ]
 
   libs = [
-    "pthread",
-    "crypto",
+    # "pthread",
+    # "crypto",
     "cpr",
-    "curl"
+    # "curl"
   ]
 }
