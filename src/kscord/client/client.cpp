@@ -72,8 +72,8 @@ Client::Client(bool fetch_new_token, const std::string& username)
 : m_authenticator(Authenticator{username}) {
   if (fetch_new_token)
     m_authenticator.FetchToken();
-  if (!m_authenticator.IsAuthenticated() && m_authenticator.RefreshToken())
-    throw std::invalid_argument{"Client was unable to authenticate."};
+  if (!m_authenticator.IsAuthenticated() && !m_authenticator.RefreshToken())
+    log("Client was unable to authenticate.");
 }
 
 bool Client::HasAuth() {
@@ -89,47 +89,23 @@ Channel Client::FetchChannel(const std::string& id) {
   using namespace constants;
 
   const std::string URL = BASE_URL + URLS.at(CHANNELS_INDEX) + id;
-  RequestResponse response{
+  cpr::Response response =
     cpr::Get(
       cpr::Url(URL),
       cpr::Header{
         {"Content-Type", "application/json"},
         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
      }
-    )
-  };
+    );
 
-  if (response.error)
+  if (response.error.code != cpr::ErrorCode::OK)
   {
-    log(response.GetError());
+    log(response.error.message);
     return Channel{};
   }
 
-  return ParseChannelFromJSON(response.json());
+  return ParseChannelFromJSON(json::parse(response.text));
 }
-
-// Channel Client::FetchChannelMessages(const std::string& id) {
-//   using namespace constants;
-
-//   const std::string URL = BASE_URL + URLS.at(CHANNELS_INDEX) + id + "/messages";
-//   RequestResponse response{
-//     cpr::Get(
-//       cpr::Url(URL),
-//       cpr::Header{
-//         {"Content-Type", "application/json"},
-//         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
-//      }
-//     )
-//   };
-
-//   if (response.error)
-//   {
-//     log(response.GetError());
-//     return Channel{};
-//   }
-
-//   return ParseChannelFromJSON(response.json());
-// }
 
 std::vector<Channel> Client::FetchGuildChannels(const std::string& id)
 {
@@ -137,48 +113,43 @@ std::vector<Channel> Client::FetchGuildChannels(const std::string& id)
 
   const std::string URL = BASE_URL + URLS.at(GUILDS_INDEX) + id + "/channels";
 
-  RequestResponse response{
+  cpr::Response response =
     cpr::Get(
       cpr::Url(URL),
       cpr::Header{
         {"Content-Type", "application/json"},
-        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
-     }
-    )
-  };
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}}
+    );
 
-  if (response.error)
+  if (response.error.code != cpr::ErrorCode::OK)
   {
-    log(response.GetError());
+    log(response.error.message);
     return std::vector<Channel>{};
   }
 
-  return ParseChannelsFromJSON(response.json());
+  return ParseChannelsFromJSON(json::parse(response.text));
 }
-
 
 Guild Client::FetchGuild(const std::string& id) {
   using namespace constants;
 
   const std::string URL = BASE_URL + URLS.at(GUILDS_INDEX) + id;
 
-  RequestResponse response{
+  cpr::Response response =
     cpr::Get(
       cpr::Url(URL),
       cpr::Header{
         {"Content-Type", "application/json"},
         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
-     }
-    )
-  };
+     });
 
-  if (response.error)
+  if (response.error.code != cpr::ErrorCode::OK)
   {
-    log(response.GetError());
+    log(response.error.message);
     return Guild{};
   }
 
-  return ParseGuildFromJSON(response.json());
+  return ParseGuildFromJSON(json::parse(response.text));
 }
 
 std::vector<Guild> Client::FetchGuilds() {
@@ -186,23 +157,21 @@ std::vector<Guild> Client::FetchGuilds() {
 
   const std::string URL = BASE_URL + URLS.at(SELF_GUILDS_INDEX);
 
-  RequestResponse response{
+  cpr::Response response =
     cpr::Get(
       cpr::Url(URL),
       cpr::Header{
         {"Content-Type", "application/json"},
         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
-     }
-    )
-  };
+     });
 
-  if (response.error)
+  if (response.error.code != cpr::ErrorCode::OK)
   {
-    log(response.GetError());
+    log(response.error.message);
     return std::vector<Guild>{};
   }
 
-  return ParseGuildsFromJSON(response.json());
+  return ParseGuildsFromJSON(json::parse(response.text));
 }
 
 /**
@@ -220,7 +189,7 @@ bool Client::PostMessage(const std::string& content, const std::vector<std::stri
 
   for (const auto& message_content : ChunkMessage(content))
   {
-    payload["content"] = content;
+    payload["content"] = message_content;
 
     if (sending_media)
     {
@@ -230,7 +199,11 @@ bool Client::PostMessage(const std::string& content, const std::vector<std::stri
       sending_media = false;
     }
 
-    RequestResponse response{
+    auto s = payload.dump();
+
+    log(s);
+
+    cpr::Response response =
       cpr::Post(
         cpr::Url{m_authenticator.GetPostURL()},
         cpr::Header{
@@ -239,18 +212,15 @@ bool Client::PostMessage(const std::string& content, const std::vector<std::stri
         },
         cpr::Body{
           payload.dump()
-        },
-        cpr::VerifySsl{m_authenticator.verify_ssl()}
-      )
-    };
+        });
 
-    if (response.error)
+    if (response.error.code != cpr::ErrorCode::OK)
     {
-      log(response.GetError());
+      log(response.error.message);
       return false;
     }
 
-    log(response.text());
+    log(response.text);
 
     payload.clear();
   }
@@ -269,19 +239,17 @@ std::string Client::FetchGateway()
 
   const std::string URL = BASE_URL + URLS.at(GATEWAY_BOT_INDEX);
 
-  RequestResponse response{
+  cpr::Response response =
     cpr::Get(
       cpr::Url(URL),
       cpr::Header{
         {"Content-Type", "application/json"},
         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
-      }
-    )
-  };
+      });
 
-  if (response.error)
+  if (response.error.code != cpr::ErrorCode::OK)
   {
-    log(response.GetError());
+    log(response.error.message);
     return "";
   }
 
@@ -293,7 +261,7 @@ std::string Client::FetchGateway()
   }
   */
 
-  return response.text();
+  return response.text;
 }
 
 bool Client::SetUser(const std::string& username)

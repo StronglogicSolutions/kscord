@@ -30,11 +30,11 @@ inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::strin
 
     nlohmann::json user_json = json_file[username];
 
-    creds.scope        =  GetJSONStringValue(user_json, "scope");
-    creds.client_id =     GetJSONStringValue(user_json, "client_id");
-    creds.client_secret = GetJSONStringValue(user_json, "client_secret");
-    creds.public_key =     GetJSONStringValue(user_json, "public_key");
-    creds.code =          GetJSONStringValue(user_json, "code");
+    creds.scope         =  GetJSONStringValue(user_json, "scope");
+    creds.client_id     =  GetJSONStringValue(user_json, "client_id");
+    creds.client_secret =  GetJSONStringValue(user_json, "client_secret");
+    creds.public_key    =  GetJSONStringValue(user_json, "public_key");
+    creds.code          =  GetJSONStringValue(user_json, "code");
   }
 
   return creds;
@@ -50,16 +50,6 @@ inline bool ValidateAuthJSON(const nlohmann::json& json_file) {
     json_file.contains("expires_in")
   );
 }
-
-// inline std::string AuthToJSON(Auth auth) {
-//   nlohmann::json auth_json{};
-//   auth_json["access_token"] = auth.access_token;
-//   auth_json["token_type"]   = auth.token_type;
-//   auth_json["scope"]        = auth.scope;
-//   auth_json["created_at"]   = auth.created_at;
-
-//   return auth_json.dump();
-// }
 
 inline std::vector<BotInfo> ParseBotInfoFromJSON(const nlohmann::json& data)
 {
@@ -93,9 +83,6 @@ inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
 
   return auth;
 }
-
-
-
 
 class Authenticator {
 
@@ -169,16 +156,16 @@ bool FetchToken(bool refresh = false) {
   using json = nlohmann::json;
   using namespace constants;
   // const std::string AUTHORIZATION_CODE_GRANT_TYPE{"authorization_code"};
-  const std::string TOKEN_URL = BASE_URL + URLS.at(TOKEN_INDEX);
+  const std::string TOKEN_URL = BASE_URL + URLS.at((refresh) ? TOKEN_INDEX : OAUTH_INDEX);
 
   auto body = (refresh) ?
     cpr::Body{
         "client_id=" + m_credentials.client_id + '&' +
         "client_secret=" + m_credentials.client_secret + '&' +
         "grant_type=refresh_token" + '&' +
-        "refresh_token=" + m_auth.refresh_token + '&' +
-        "redirect_uri=" + BASE_URL + URLS.at(OAUTH_INDEX) + '&' +
-        "scope=" + m_credentials.scope
+        "refresh_token=" + m_auth.refresh_token
+        // "redirect_uri=" + BASE_URL + URLS.at(OAUTH_INDEX) + '&' +
+        // "scope=" + m_credentials.scope
       } :
       cpr::Body{
         "client_id=" + m_credentials.client_id + '&' +
@@ -189,25 +176,24 @@ bool FetchToken(bool refresh = false) {
         "scope=" + m_credentials.scope
       };
 
-  RequestResponse response{
+  cpr::Response response =
     cpr::Post(
       cpr::Url{TOKEN_URL},
       cpr::Header{
         {"Content-Type", "application/x-www-form-urlencoded"}
       },
-      body,
-      cpr::VerifySsl{m_verify_ssl}
-    )
-  };
+      body);
 
-  if (response.error) {
-    kscord::log(response.GetError());
+  if (response.error.code != cpr::ErrorCode::OK)
+  {
+    kscord::log(response.error.message);
     return false;
   }
 
-  json response_json = response.json();
+  json response_json = json::parse(response.text);
 
-  if (ValidateAuthJSON(response_json)) {
+  if (ValidateAuthJSON(response_json))
+  {
     m_auth = ParseAuthFromJSON(response_json);
     m_authenticated = true;
     m_token_json[m_username] = response_json;
@@ -230,23 +216,20 @@ bool FetchUser()
 
   if (m_auth.is_valid() || RefreshToken())
   {
-    RequestResponse response{cpr::Get(
+    cpr::Response response = cpr::Get(
       cpr::Url{URL},
       cpr::Header{
         {"Content-Type", "application/json"},
         {HEADER_NAMES.at(HEADER_AUTH_INDEX), GetBearerAuth()}
-     }
-    )};
+     });
 
-    if (response.error)
+    if (response.error.code != cpr::ErrorCode::OK)
     {
-      kscord::log(response.GetError());
+      kscord::log(response.error.message);
       return false;
     }
 
-    auto string = response.text();
-
-    m_user = ParseUserFromJSON(response.json());
+    m_user = ParseUserFromJSON(json::parse(response.text));
     return true;
   }
   return false;
