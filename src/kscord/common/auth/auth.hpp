@@ -30,11 +30,11 @@ inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::strin
 
     nlohmann::json user_json = json_file[username];
 
-    creds.scope        =  GetJSONStringValue(user_json, "scope");
-    creds.client_id =     GetJSONStringValue(user_json, "client_id");
-    creds.client_secret = GetJSONStringValue(user_json, "client_secret");
-    creds.public_key =     GetJSONStringValue(user_json, "public_key");
-    creds.code =          GetJSONStringValue(user_json, "code");
+    creds.scope         =  GetJSONStringValue(user_json, "scope");
+    creds.client_id     =  GetJSONStringValue(user_json, "client_id");
+    creds.client_secret =  GetJSONStringValue(user_json, "client_secret");
+    creds.public_key    =  GetJSONStringValue(user_json, "public_key");
+    creds.code          =  GetJSONStringValue(user_json, "code");
   }
 
   return creds;
@@ -50,16 +50,6 @@ inline bool ValidateAuthJSON(const nlohmann::json& json_file) {
     json_file.contains("expires_in")
   );
 }
-
-// inline std::string AuthToJSON(Auth auth) {
-//   nlohmann::json auth_json{};
-//   auth_json["access_token"] = auth.access_token;
-//   auth_json["token_type"]   = auth.token_type;
-//   auth_json["scope"]        = auth.scope;
-//   auth_json["created_at"]   = auth.created_at;
-
-//   return auth_json.dump();
-// }
 
 inline std::vector<BotInfo> ParseBotInfoFromJSON(const nlohmann::json& data)
 {
@@ -93,9 +83,6 @@ inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
 
   return auth;
 }
-
-
-
 
 class Authenticator {
 
@@ -195,9 +182,7 @@ bool FetchToken(bool refresh = false) {
       cpr::Header{
         {"Content-Type", "application/x-www-form-urlencoded"}
       },
-      body//,
-      // cpr::VerifySsl{m_verify_ssl}
-    );
+      body);
 
   if (response.error.code != cpr::ErrorCode::OK)
   {

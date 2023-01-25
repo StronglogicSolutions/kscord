@@ -107,29 +107,6 @@ Channel Client::FetchChannel(const std::string& id) {
   return ParseChannelFromJSON(json::parse(response.text));
 }
 
-// Channel Client::FetchChannelMessages(const std::string& id) {
-//   using namespace constants;
-
-//   const std::string URL = BASE_URL + URLS.at(CHANNELS_INDEX) + id + "/messages";
-//   Cpr::Response response =
-//     cpr::Get(
-//       cpr::Url(URL),
-//       cpr::Header{
-//         {"Content-Type", "application/json"},
-//         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBotAuth()}
-//      }
-//     )
-//   };
-
-//   if (response.error)
-//   {
-//     log(response.GetError());
-//     return Channel{};
-//   }
-
-//   return ParseChannelFromJSON(response.json());
-// }
-
 std::vector<Channel> Client::FetchGuildChannels(const std::string& id)
 {
   using namespace constants;
