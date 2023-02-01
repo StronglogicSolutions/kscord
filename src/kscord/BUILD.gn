@@ -6,11 +6,8 @@ config("kjson") {
 }
 
 config("cpr_library") {
-  include_dirs = ["//third_party/cpr/include"]
-  lib_dirs = [ "//third_party/cpr/build/lib" ]
-  libs = [
-    "//third_party/cpr/build/lib/libcpr.so",
-  ]
+  include_dirs = [cpr_include]
+  libs = ["cpr"]
   visibility = [ ":cpr_lib" ]
 }
 
