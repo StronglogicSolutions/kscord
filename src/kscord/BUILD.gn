@@ -7,7 +7,7 @@ config("kjson") {
 
 config("cpr_library") {
   include_dirs = [cpr_include]
-  libs = ["cpr"]
+  libs = ["cpr", curld_lib]
   visibility = [ ":cpr_lib" ]
 }
 
