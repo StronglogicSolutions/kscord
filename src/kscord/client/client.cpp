@@ -1,6 +1,7 @@
 #include "client.hpp"
 
-namespace kscord {
+namespace kscord
+{
 
 /**
   ┌───────────────────────────────────────────────────────────┐
@@ -274,11 +275,6 @@ bool Client::SetUser(const std::string& username)
 
 bool Client::CreateGatewaySocket(const std::string& url)
 {
-  zmq::context_t context{1};
-  zmq::socket_t  socket{context, ZMQ_PULL};
-
-  socket.connect(url);
-  // socket.
   return false;
 }
 

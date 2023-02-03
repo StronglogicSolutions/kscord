@@ -7,7 +7,7 @@ config("kjson") {
 
 config("cpr_library") {
   include_dirs = [cpr_include]
-  libs = ["cpr", curld_lib]
+  libs = ["cpr"]
   visibility = [ ":cpr_lib" ]
 }
 
@@ -44,10 +44,6 @@ source_set("kscord_sources") {
 
   include_dirs = [
     "//src",
-  ]
-
-  libs = [
-    "zmq"
   ]
 
   sources = [
