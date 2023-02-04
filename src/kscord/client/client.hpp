@@ -2,7 +2,6 @@
 
 #include "kscord/common/auth/auth.hpp"
 #include "kscord/common/interface.hpp"
-#include <zmq.hpp>
 
 namespace kscord {
 /**
