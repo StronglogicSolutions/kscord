@@ -1,8 +1,7 @@
 #pragma once
 
 #include <cpr/cpr.h>
-#include <kjson.hpp>
-
+#include <nlohmann/json.hpp>
 #include "constants.hpp"
 
 namespace kscord {

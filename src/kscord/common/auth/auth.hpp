@@ -21,8 +21,8 @@ inline bool JSONHasUser(nlohmann::json data, std::string username) {
   return (!data.is_null() && data.is_object() && data.contains(username));
 }
 
-inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::string username) {
-  using namespace kjson;
+inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::string username)
+{
   Credentials creds{};
   if (
     JSONHasUser(json_file, username) &&
@@ -30,11 +30,11 @@ inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::strin
 
     nlohmann::json user_json = json_file[username];
 
-    creds.scope         =  GetJSONStringValue(user_json, "scope");
-    creds.client_id     =  GetJSONStringValue(user_json, "client_id");
-    creds.client_secret =  GetJSONStringValue(user_json, "client_secret");
-    creds.public_key    =  GetJSONStringValue(user_json, "public_key");
-    creds.code          =  GetJSONStringValue(user_json, "code");
+    creds.scope         =  user_json["scope"].get<std::string>();
+    creds.client_id     =  user_json["client_id"].get<std::string>();
+    creds.client_secret =  user_json["client_secret"].get<std::string>();
+    creds.public_key    =  user_json["public_key"].get<std::string>();
+    creds.code          =  user_json["code"].get<std::string>();
   }
 
   return creds;
@@ -53,8 +53,6 @@ inline bool ValidateAuthJSON(const nlohmann::json& json_file) {
 
 inline std::vector<BotInfo> ParseBotInfoFromJSON(const nlohmann::json& data)
 {
-  using namespace kjson;
-
   std::vector<BotInfo> info{};
 
   if (!data.is_null() && data.is_object())
@@ -67,17 +65,16 @@ inline std::vector<BotInfo> ParseBotInfoFromJSON(const nlohmann::json& data)
   return info;
 }
 
-inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
-  using namespace kjson;
-
+inline Auth ParseAuthFromJSON(nlohmann::json json_file)
+{
   Auth auth{};
 
   if (ValidateAuthJSON(json_file)) {
-    auth.access_token =  GetJSONStringValue(json_file, "access_token");
-    auth.refresh_token = GetJSONStringValue(json_file, "refresh_token");
-    auth.token_type   =  GetJSONStringValue(json_file, "token_type");
-    auth.scope        =  GetJSONStringValue(json_file, "scope");
-    auth.expires_in   =  std::to_string(GetJSONValue<uint32_t>(json_file, "expires_in"));
+    auth.access_token =  json_file["access_token"].get<std::string>();
+    auth.refresh_token = json_file["refresh_token"].get<std::string>();
+    auth.token_type   =  json_file["token_type"].get<std::string>();
+    auth.scope        =  json_file["scope"].get<std::string>();
+    auth.expires_in   =  std::to_string(json_file["expires_in"].get<uint32_t>());
     auth.bots         =  ParseBotInfoFromJSON(json_file["bots"]);
   }
 
