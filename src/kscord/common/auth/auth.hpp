@@ -73,11 +73,11 @@ inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
   Auth auth{};
 
   if (ValidateAuthJSON(json_file)) {
-    auth.access_token =  GetJSONStringValue(json_file, "access_token");
-    auth.refresh_token = GetJSONStringValue(json_file, "refresh_token");
-    auth.token_type   =  GetJSONStringValue(json_file, "token_type");
-    auth.scope        =  GetJSONStringValue(json_file, "scope");
-    auth.expires_in   =  std::to_string(GetJSONValue<uint32_t>(json_file, "expires_in"));
+    auth.access_token =  json_file["access_token"].get<std::string>();
+    auth.refresh_token = json_file["refresh_token"].get<std::string>();
+    auth.token_type   =  json_file["token_type"].get<std::string>();
+    auth.scope        =  json_file["scope"].get<std::string>();
+    auth.expires_in   =  std::to_string(json_file["expires_in"].get<uint32_t>());
     auth.bots         =  ParseBotInfoFromJSON(json_file["bots"]);
   }
 

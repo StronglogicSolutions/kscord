@@ -38,24 +38,25 @@ inline INIReader GetConfigReader() {
   return INIReader{GetConfigPath()};
 }
 
-inline kscord::User ParseUserFromJSON(nlohmann::json data) {
+inline kscord::User ParseUserFromJSON(nlohmann::json data)
+{
   kscord::User user{};
   using namespace kjson;
 
   if (!data.is_null()) {
-    user.id = GetJSONStringValue(data, "id");
-    user.username = GetJSONStringValue(data, "username");
-    user.discriminator = GetJSONStringValue(data, "discriminator");
-    user.avatar = GetJSONStringValue(data, "avatar");
-    user.bot = GetJSONStringValue(data, "bot");
-    user.system = GetJSONStringValue(data, "system");
-    user.mfa_enabled = GetJSONBoolValue(data, "mfa_enabled");
-    user.locale = GetJSONStringValue(data, "locale");
-    user.verified = GetJSONBoolValue(data, "verified");
-    user.email = GetJSONStringValue(data, "email");
-    user.flags = GetJSONValue<uint32_t>(data, "flags");
-    user.premium_type = GetJSONValue<uint32_t>(data, "premium_type");
-    user.public_flags = GetJSONValue<uint32_t>(data, "public_flags");
+    user.id = data["id"].get<std::string>();
+    user.username = data["username"].get<std::string>();
+    user.discriminator = data["discriminator"].get<std::string>();
+    user.avatar = data["avatar"].get<std::string>();
+    user.bot = data["bot"].get<std::string>();
+    user.system = data["system"].get<std::string>();
+    user.mfa_enabled = data["mfa_enabled"].get<bool>();
+    user.locale = data["locale"].get<std::string>();
+    user.verified = data["verified"].get<bool>();
+    user.email = data["email"].get<std::string>();
+    user.flags = data["flags"].get<uint32_t>();
+    user.premium_type = data["premium_type"].get<uint32_t>();
+    user.public_flags = data["public_flags"].get<uint32_t>();
   }
   return user;
 }
@@ -74,29 +75,30 @@ inline kscord::Guild ParseGuildFromJSON(const nlohmann::json& data) {
   kscord::Guild guild{};
 
   if (!data.is_null()) {
-    guild.id = GetJSONStringValue(data, "id");
-    guild.name = GetJSONStringValue(data, "name");
-    guild.icon = GetJSONStringValue(data, "icon");
-    guild.icon_hash = GetJSONStringValue(data, "icon_hash");
-    guild.splash = GetJSONStringValue(data, "splash");
-    guild.discovery_splash = GetJSONStringValue(data, "discovery_splash");
-    guild.owner = GetJSONBoolValue(data, "owner");
-    guild.owner_id = GetJSONStringValue(data, "owner_id");
-    guild.permissions = GetJSONValue<uint32_t>(data, "permissions");
-    guild.region = GetJSONStringValue(data, "region");
-    guild.afk_channel_id = GetJSONStringValue(data, "afk_channel_id");
-    guild.afk_timeout = GetJSONValue<uint32_t>(data, "afk_timeout");
-    guild.widget_enabled = GetJSONBoolValue(data, "widget_enabled");
-    guild.widget_channel_id = GetJSONStringValue(data, "widget_channel_id");
-    guild.verification_level = GetJSONValue<uint32_t>(data, "verification_level");
-    guild.default_message_notifications = GetJSONValue<uint32_t>(data, "default_message_notifications");
-    guild.explicit_content_filter = GetJSONValue<uint32_t>(data, "explicit_content_filter");
+    guild.id = data["id"].get<std::string>();
+    guild.name = data["name"].get<std::string>();
+    guild.icon = data["icon"].get<std::string>();
+    guild.icon_hash = data["icon_hash"].get<std::string>();
+    guild.splash = data["splash"].get<std::string>();
+    guild.discovery_splash = data["discovery_splash"].get<std::string>();
+    guild.owner = data["owner"].get<bool>();
+    guild.owner_id = data["owner_id"].get<std::string>();
+    guild.permissions = data["permissions"].get<uint32_t>();
+    guild.region = data["region"].get<std::string>();
+    guild.afk_channel_id = data["afk_channel_id"].get<std::string>();
+    guild.afk_timeout = data["afk_timeout"].get<uint32_t>();
+    guild.widget_enabled = data["widget_enabled"].get<bool>();
+    guild.widget_channel_id = data["widget_channel_id"].get<std::string>();
+    guild.verification_level = data["verification_level"].get<uint32_t>();
+    guild.default_message_notifications = data["default_message_notifications"].get<uint32_t>();
+    guild.explicit_content_filter = data["explicit_content_filter"].get<uint32_t>();
   }
 
   return guild;
 }
 
-inline std::vector<kscord::Guild> ParseGuildsFromJSON(const nlohmann::json& data) {
+inline std::vector<kscord::Guild> ParseGuildsFromJSON(const nlohmann::json& data)
+{
   std::vector<kscord::Guild> guilds{};
 
   if (data.is_array())
@@ -108,29 +110,27 @@ inline std::vector<kscord::Guild> ParseGuildsFromJSON(const nlohmann::json& data
 
 
 inline kscord::Channel ParseChannelFromJSON(const nlohmann::json& data) {
-  using namespace kjson;
-
   kscord::Channel channel{};
 
   if (!data.is_null()) {
-    channel.id = GetJSONStringValue(data, "id");
-    channel.type = GetJSONValue<uint32_t>(data, "type");
-    channel.guild_id = GetJSONStringValue(data, "guild_id");
-    channel.position = GetJSONValue<uint32_t>(data, "position");
+    channel.id = data["id"].get<std::string>();
+    channel.type = data["type"].get<uint32_t>();
+    channel.guild_id = data["guild_id"].get<std::string>();
+    channel.position = data["position"].get<uint32_t>();
     // channel.permission_overwrites = GetJSONValue<permission_overwrites(data, "]");
-    channel.name = GetJSONStringValue(data, "name");
-    channel.topic = GetJSONStringValue(data, "topic");
-    channel.nsfw = GetJSONBoolValue(data, "nsfw");
-    channel.last_message_id = GetJSONStringValue(data, "last_message_id");
-    channel.bitrate = GetJSONValue<uint32_t>(data, "bitrate");
-    channel.user_limit = GetJSONValue<uint32_t>(data, "user_limit");
-    channel.rate_limit_per_user = GetJSONValue<uint32_t>(data, "rate_limit_per_user");
+    channel.name = data["name"].get<std::string>();
+    channel.topic = data["topic"].get<std::string>();
+    channel.nsfw = data["nsfw"].get<bool>();
+    channel.last_message_id = data["last_message_id"].get<std::string>();
+    channel.bitrate = data["bitrate"].get<uint32_t>();
+    channel.user_limit = data["user_limit"].get<uint32_t>();
+    channel.rate_limit_per_user = data["rate_limit_per_user"].get<uint32_t>();
     // channel.recipients = ParseUsersFromJSON(data["recipients"]);
-    channel.icon = GetJSONStringValue(data, "icon");
-    channel.owner_id = GetJSONStringValue(data, "owner_id");
-    channel.application_id = GetJSONStringValue(data, "application_id");
-    channel.parent_id = GetJSONStringValue(data, "parent_id");
-    channel.last_pin_timestamp = GetJSONStringValue(data, "last_pin_timestamp");
+    channel.icon = data["icon"].get<std::string>();
+    channel.owner_id = data["owner_id"].get<std::string>();
+    channel.application_id = data["application_id"].get<std::string>();
+    channel.parent_id = data["parent_id"].get<std::string>();
+    channel.last_pin_timestamp = data["last_pin_timestamp"].get<std::string>();
   }
 
   return channel;
