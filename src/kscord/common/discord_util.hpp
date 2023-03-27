@@ -41,7 +41,6 @@ inline INIReader GetConfigReader() {
 inline kscord::User ParseUserFromJSON(nlohmann::json data)
 {
   kscord::User user{};
-  using namespace kjson;
 
   if (!data.is_null()) {
     user.id = data["id"].get<std::string>();
@@ -69,9 +68,8 @@ inline std::vector<kscord::User> ParseUsersFromJSON(const nlohmann::json& data)
   return users;
 }
 
-inline kscord::Guild ParseGuildFromJSON(const nlohmann::json& data) {
-  using namespace kjson;
-
+inline kscord::Guild ParseGuildFromJSON(const nlohmann::json& data)
+{
   kscord::Guild guild{};
 
   if (!data.is_null()) {

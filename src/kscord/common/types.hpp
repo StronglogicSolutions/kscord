@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include <cpr/cpr.h>
-#include <kjson.hpp>
+#include <nlohmann/json.hpp>
 
 namespace kscord {
 /**

@@ -55,7 +55,7 @@ RequestResponse::RequestResponse(cpr::Response r)
 {}
 
 nlohmann::json RequestResponse::json() const {
-  return nlohmann::json::parse(response.text, nullptr, kjson::constants::JSON_PARSE_NO_THROW);
+  return nlohmann::json::parse(response.text, nullptr, false);
 }
 
 std::string RequestResponse::text() const {
