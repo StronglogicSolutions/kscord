@@ -21,8 +21,8 @@ inline bool JSONHasUser(nlohmann::json data, std::string username) {
   return (!data.is_null() && data.is_object() && data.contains(username));
 }
 
-inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::string username) {
-  using namespace kjson;
+inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::string username)
+{
   Credentials creds{};
   if (
     JSONHasUser(json_file, username) &&
@@ -30,11 +30,11 @@ inline Credentials ParseCredentialsFromJSON(nlohmann::json json_file, std::strin
 
     nlohmann::json user_json = json_file[username];
 
-    creds.scope         =  GetJSONStringValue(user_json, "scope");
-    creds.client_id     =  GetJSONStringValue(user_json, "client_id");
-    creds.client_secret =  GetJSONStringValue(user_json, "client_secret");
-    creds.public_key    =  GetJSONStringValue(user_json, "public_key");
-    creds.code          =  GetJSONStringValue(user_json, "code");
+    creds.scope         =  user_json["scope"].get<std::string>();
+    creds.client_id     =  user_json["client_id"].get<std::string>();
+    creds.client_secret =  user_json["client_secret"].get<std::string>();
+    creds.public_key    =  user_json["public_key"].get<std::string>();
+    creds.code          =  user_json["code"].get<std::string>();
   }
 
   return creds;
@@ -53,8 +53,6 @@ inline bool ValidateAuthJSON(const nlohmann::json& json_file) {
 
 inline std::vector<BotInfo> ParseBotInfoFromJSON(const nlohmann::json& data)
 {
-  using namespace kjson;
-
   std::vector<BotInfo> info{};
 
   if (!data.is_null() && data.is_object())
@@ -67,9 +65,8 @@ inline std::vector<BotInfo> ParseBotInfoFromJSON(const nlohmann::json& data)
   return info;
 }
 
-inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
-  using namespace kjson;
-
+inline Auth ParseAuthFromJSON(nlohmann::json json_file)
+{
   Auth auth{};
 
   if (ValidateAuthJSON(json_file)) {

@@ -41,7 +41,7 @@ std::vector<uint8_t> ReadBytesFromFile(std::string path) {
 
 nlohmann::json LoadJSONFile(std::string path) {
 
-  return nlohmann::json::parse(ReadFromFile(path), nullptr, kjson::constants::JSON_PARSE_NO_THROW);
+  return nlohmann::json::parse(ReadFromFile(path), nullptr, false);
 }
 
 /**
