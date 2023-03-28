@@ -12,7 +12,8 @@ void SaveToFile(std::string data, std::string path) {
 /**
  * SaveToFile
  */
-void SaveToFile(nlohmann::json data, std::string path) {
+void SaveToFile(nlohmann::json data, std::string path)
+{
   std::ofstream o{path};
   o << data;
 }
